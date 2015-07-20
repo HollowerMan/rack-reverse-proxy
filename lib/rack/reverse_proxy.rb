@@ -53,6 +53,16 @@ module Rack
         target_request_headers['X-Forwarded-Host'] = source_request.host
         target_request_headers['X-Forwarded-Port'] = "#{source_request.port}"
       end
+      
+      if headers_opt = options[:headers]
+        if headers_opt.is_a?(Proc)
+          target_request_headers = headers_opt.call(headers)
+        elsif headers_opt.is_a?(Hash)
+          target_request_headers.merge!(headers_opt)
+        else
+          $stderr.puts "Warning: :headers option provided with unsupported type '#{headers_opt.class}'. Expected a Hash or Proc"
+        end
+      end
 
       target_request.initialize_http_header(target_request_headers)
 
